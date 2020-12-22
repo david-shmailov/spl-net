@@ -85,6 +85,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(isLoginStudent) {
             short courseNum = (short) ((msg[2] & 0xff) << 8); //convert the 2 byte
             courseNum += (short) (msg[3] & 0xff);             //convert the 2 byte
+            if(database.KdamNeeded(courseNum)!=null)
             return sendACKOptionalList(msg, database.KdamNeeded(courseNum)); //todo list of kdam need to be order
         }
         return sendError(msg);

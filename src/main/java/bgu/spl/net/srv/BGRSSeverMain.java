@@ -7,7 +7,6 @@ import bgu.spl.net.impl.newsfeed.NewsFeed;
 
 public class BGRSSeverMain {
     public static void main(String[] args) {
-        NewsFeed feed = new NewsFeed(); //one shared object
 
         Server.threadPerClient(
                 7777, //port

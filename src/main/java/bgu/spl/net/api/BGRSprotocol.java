@@ -85,7 +85,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(isLoginStudent) {
             short courseNum = (short) ((msg[2] & 0xff) << 8); //convert the 2 byte
             courseNum += (short) (msg[3] & 0xff);             //convert the 2 byte
-            return sendACKOptionalList(msg, database.KdamNeeded(courseNum));
+            return sendACKOptionalList(msg, database.KdamNeeded(courseNum)); //todo list of kdam need to be order
         }
         return sendError(msg);
     }
@@ -94,7 +94,8 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(isLoginAdmin){
             short courseNum = (short) ((msg[2] & 0xff) << 8); //convert the 2 byte
             courseNum += (short) (msg[3] & 0xff);             //convert the 2 byte
-            return sendACKCourseStat(msg,database.courseName(courseNum),database.SeatsMax(courseNum),database.SeatsCurrent(courseNum),database.StudentsRegisterToCourse(courseNum));
+            return sendACKCourseStat(msg,database.courseName(courseNum),database.SeatsMax(courseNum),
+                    database.SeatsCurrent(courseNum),database.StudentsRegisterToCourse(courseNum));//todo list of student need to be order alphabetic
         }
         return sendError(msg);
     }
@@ -102,7 +103,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] StudentStat(byte[] msg) {
         if(isLoginAdmin){
             String name=bytesToString(msg)[0];
-            return sendACKStringAndList(msg,name,database.StudentStat(name));
+            return sendACKStringAndList(msg,name,database.StudentStat(name));//todo list of Integer need to be order
         }
         return sendError(msg);
     }
@@ -154,10 +155,10 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         send[index+4] = (byte)(((seatsMax >> 8) & 0xFF));
         send[index+5] = (byte)(seatsMax & 0xFF);
         send[index+6]=0;
-        return getlistOfStringToBytes(list,send,index+7);
+        return getListOfStringToBytes(list,send,index+7);
     }
 
-    private byte[] getlistOfStringToBytes(LinkedList<String> list, byte[] send, int index) {
+    private byte[] getListOfStringToBytes(LinkedList<String> list, byte[] send, int index) {
         for(String name:list){
             byte[] Name=name.getBytes();
             send=Arrays.copyOf(send,send.length+Name.length);//todo mybe to copy the array different

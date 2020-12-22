@@ -19,7 +19,6 @@ public class Database {
     private static class SingletonHolder {
         private static Database database = new Database();
     }
-
     private LinkedList<Integer> CourseByOrder;
     private HashMap<String, String> loginStudent;
     private HashMap<String, String> loginAdmin;
@@ -94,12 +93,11 @@ public class Database {
 
                 }
                 line=reader.readLine();
-            }
+            } return true;
 
         } catch (IOException e) {
             e.printStackTrace();
         }
-        // TODO: implement
         return false;
     }
 

@@ -40,7 +40,7 @@ public class Database {
         StatCourse = new HashMap<>();
         CourseByOrder = new LinkedList<>();
         online = new HashMap<>();
-        initialize("/Courses.txt");
+        initialize("Courses.txt");
     }
 
     /**

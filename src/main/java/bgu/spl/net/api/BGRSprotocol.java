@@ -138,8 +138,8 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         short num=12;
         send[0] = (byte)((num >> 8) & 0xFF);
         send[1] = (byte)(num & 0xFF);
-        send[2]=msg[0];
-        send[3]=msg[1];
+        send[2] = msg[0];
+        send[3] = msg[1];
         return send;
     }
     private byte[] sendACKCourseStat(byte[] msg, String courseName, int seatsMax, int seatsCurrent, LinkedList<String> list) {
@@ -151,10 +151,10 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         }
         send[index+1] = (byte)(((seatsCurrent >> 8) & 0xFF));
         send[index+2] = (byte)(seatsCurrent & 0xFF);
-        send[index+3]=0;
+        send[index+3] = 0;
         send[index+4] = (byte)(((seatsMax >> 8) & 0xFF));
         send[index+5] = (byte)(seatsMax & 0xFF);
-        send[index+6]=0;
+        send[index+6] = 0;
         return getListOfStringToBytes(list,send,index+7);
     }
 

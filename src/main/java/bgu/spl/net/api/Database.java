@@ -153,7 +153,12 @@ public class Database {
      * for COURSEREG
      */
     public synchronized boolean CourseRegister(int numOfCourse, String name) {
-        if (StatCourse.get(numOfCourse).size() < NumOfMaxStudent.get(numOfCourse)) {
+        LinkedList<Integer> kdam=KdamNeeded(numOfCourse);
+        boolean AllKdam=true;
+        for(Integer course: kdam){
+           if( !StatStudent.get(name).contains(course)) AllKdam=false;
+        }
+        if (StatCourse.get(numOfCourse).size() < NumOfMaxStudent.get(numOfCourse) && AllKdam) {
             StatCourse.get(numOfCourse).add(name);
             StatStudent.get(name).add(numOfCourse);
             return true;
@@ -170,6 +175,7 @@ public class Database {
     /**
      * for COURSESTAT
      */
+    public String courseName(int numOfCourse){return CoursesName.get(numOfCourse); }
     public int SeatsMax(int numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
     public synchronized int SeatsCurrent(int numOfCourse) { return StatCourse.get(numOfCourse).size(); }
     public LinkedList<String> StudentsRegisterToCourse(int numOfCourse) { return StatCourse.get(numOfCourse); }

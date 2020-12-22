@@ -23,7 +23,7 @@ public class BGRSEncoderDecoder implements MessageEncoderDecoder<byte[]>{
     public byte[] encode(byte[] message) {
         byte[] send=new byte[message.length+1] ;
         for(int i=0; i<=message.length;i++) {send[i]=bytes[i];}
-        send[message.length+1]=0;
+        send[message.length+1]='\n';
         return message;
     }
 

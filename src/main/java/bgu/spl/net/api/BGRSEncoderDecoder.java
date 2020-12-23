@@ -23,7 +23,7 @@ public class BGRSEncoderDecoder implements MessageEncoderDecoder<byte[]>{
     public byte[] encode(byte[] message) {
         byte[] send=new byte[message.length+1] ;
         for(int i=0; i<=message.length;i++) {send[i]=bytes[i];}
-        send[message.length+1]='\n';
+        send[message.length]='\n';
         return message;
     }
 
@@ -39,7 +39,7 @@ public class BGRSEncoderDecoder implements MessageEncoderDecoder<byte[]>{
         //notice that we explicitly requesting that the string will be decoded from UTF-8
         //this is not actually required as it is the default encoding in java.
         byte[] result=new byte[len] ;
-        for(int i=0; i<=len;i++) {result[i]=bytes[i];}
+        for(int i=0; i<len;i++) {result[i]=bytes[i];}
         len = 0;
         return result;
     }

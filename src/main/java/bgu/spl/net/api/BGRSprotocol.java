@@ -69,6 +69,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] Logout(byte[] msg) {
         if(isLoginAdmin|| isLoginStudent){
             database.Logout(UserName);
+            shouldTerminate=true;
             return sendACK(msg);
         }
         return sendError(msg);
@@ -95,7 +96,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(isLoginAdmin){
             short courseNum = (short) ((msg[2] & 0xff) << 8); //convert the 2 byte
             courseNum += (short) (msg[3] & 0xff);             //convert the 2 byte
-            return sendACKCourseStat(msg,database.courseName(courseNum),database.SeatsMax(courseNum),
+            return sendACKCourseStat(msg,courseNum,database.courseName(courseNum),database.SeatsMax(courseNum),
                     database.SeatsCurrent(courseNum),database.StudentsRegisterToCourse(courseNum));//todo list of student need to be order alphabetic
         }
         return sendError(msg);
@@ -143,20 +144,17 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         send[3] = msg[1];
         return send;
     }
-    private byte[] sendACKCourseStat(byte[] msg, String courseName, int seatsMax, int seatsCurrent, LinkedList<String> list) {
-        byte[] send=sendACKOptionalString(msg,courseName);
-        send= Arrays.copyOf(send, send.length+4);
-        int index=0;
-        for (int j=0;j<send.length;j++){
-            if(send[j]==0) {index =j; break;}
-        }
-        send[index+1] = (byte)(((seatsCurrent >> 8) & 0xFF));
-        send[index+2] = (byte)(seatsCurrent & 0xFF);
-        send[index+3] = 0;
-        send[index+4] = (byte)(((seatsMax >> 8) & 0xFF));
-        send[index+5] = (byte)(seatsMax & 0xFF);
-        send[index+6] = 0;
-        return getListOfStringToBytes(list,send,index+7);
+    private byte[] sendACKCourseStat(byte[] msg,short numCourse,String courseName, int seatsMax, int seatsCurrent, LinkedList<String> list) {
+        byte[] send=sendACK_Short_String(msg,numCourse,courseName);
+        int index=send.length;
+        send= Arrays.copyOf(send, send.length+6);
+        send[index] = (byte)(((seatsCurrent >> 8) & 0xFF));
+        send[index+1] = (byte)(seatsCurrent & 0xFF);
+        send[index+2] = 0;
+        send[index+3] = (byte)(((seatsMax >> 8) & 0xFF));
+        send[index+4] = (byte)(seatsMax & 0xFF);
+        send[index+5] = 0;
+        return getListOfStringToBytes(list,send,index+6);
     }
 
     private byte[] getListOfStringToBytes(LinkedList<String> list, byte[] send, int index) {
@@ -200,7 +198,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         send[2]=msg[0];
         send[3]=msg[1];
         int index=4;        ///optional part
-        return getListToBytes(list, send, index+1);
+        return getListToBytes(list, send, index);
     }
     private byte[] sendACKOptionalString(byte[] msg, String str) {
         byte[] st=str.getBytes();
@@ -212,6 +210,21 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         send[3]=msg[1];
         for (int i=4;i<4+st.length;i++){    ///optional part
            send[i]=st[i-4];
+        }
+        return send;
+    }
+    private byte[] sendACK_Short_String(byte[] msg,short numCourse, String str) {
+        byte[] st=str.getBytes();
+        byte[] send =new byte[6+st.length];
+        short num=12;
+        send[0] = (byte)((num >> 8) & 0xFF);
+        send[1] = (byte)(num & 0xFF);
+        send[2]=msg[0];
+        send[3]=msg[1];
+        send[4]=(byte)((numCourse >> 8) & 0xFF);
+        send[5]=(byte)(numCourse & 0xFF);
+        for (int i=4;i<4+st.length;i++){    ///optional part
+            send[i]=st[i-4];
         }
         return send;
     }

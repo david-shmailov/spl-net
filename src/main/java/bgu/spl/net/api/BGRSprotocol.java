@@ -49,6 +49,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
     private byte[] Login(String[] str) {
+        UserName=str[1];
         if (!isLoginAdmin && !isLoginStudent) {
             if (database.isStudent(str[1])) {
                 if (database.LoginStudent(str[1], str[2])) {

@@ -36,7 +36,6 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] AdminReg(byte[] msg) {
         String[] str =bytesToString(msg);
         UserName=str[0];
-        isAdmin=true;
         if(database.AdminRegister(str[0],str[1])) return sendACK(msg);
         return sendError(msg);
     }
@@ -44,21 +43,20 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] StudentRed(byte[] msg) {
         String[] str =bytesToString(msg);
         UserName=str[0];
-        isStudent=true;
         if(database.studentRegister(str[0],str[1])) return sendACK(msg);
         return sendError(msg);
     }
 
     private byte[] Login(byte[] msg) {
         String[] str =bytesToString(msg);
-        if(isAdmin){
-            if (database.LoginAdmin(str[0],str[1])) {
+        if(database.isStudent(str[0])){
+            if (database.LoginStudent(str[0],str[1])) {
                 isLoginAdmin=true;
                 return sendACK(msg);
             }
         }
-        if(isStudent){
-            if(database.LoginStudent(str[0],str[1])) {
+        else{
+            if(database.LoginAdmin(str[0],str[1])) {
                 isLoginStudent=true;
                 return sendACK(msg);
             }
@@ -239,15 +237,16 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
     private String[] bytesToString(byte[] msg){
-        int start=0;
+        int start=2;
         int index=0;
         String[] str=new String[2];
         for(int i=2;i<msg.length;i++){
-            if(msg[i]==0) {
-                str[index]=new String(msg,start,i,StandardCharsets.UTF_8);
+            if(msg[i]==32) {
+                str[index]=new String(msg,start,i-start,StandardCharsets.UTF_8);
                 start=i+1;
                 index++;
             }
+            if(i==msg.length-1) str[index]=new String(msg,start,i+1-start,StandardCharsets.UTF_8);
         }
         return str;
     }

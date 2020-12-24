@@ -125,15 +125,16 @@ public class Database {
     /**
      * for LOGIN
      */
+    public boolean isStudent(String name){return loginStudent.containsKey(name);}
     public boolean LoginStudent(String name, String pass) {
-        if (loginStudent.get(name) == pass && !online.get(name)) {
+        if (loginStudent.get(name).equals(pass) && !online.get(name)) {
             online.replace(name, true);
             return true;
         }
         return false;
     }
     public boolean LoginAdmin(String name, String pass) {
-        if (loginAdmin.get(name) == pass && !online.get(name)) {
+        if (loginAdmin.get(name).equals(pass) && !online.get(name)) {
             online.put(name, true);
             return true;
         }

@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+
 public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private boolean isStudent=false;
     private boolean isLoginStudent=false;
@@ -42,25 +43,26 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
     private byte[] StudentRed(String[] str) {
-        UserName=str[0];
+        UserName=str[1];
         if(database.studentRegister(str[1],str[2])) return sendACK(str);
         return sendError(str);
     }
 
     private byte[] Login(String[] str) {
-        if(database.isStudent(str[1])){
-            if (database.LoginStudent(str[1],str[2])) {
-                isLoginStudent=true;
-                return sendACK(str);
+        if (!isLoginAdmin && !isLoginStudent) {
+            if (database.isStudent(str[1])) {
+                if (database.LoginStudent(str[1], str[2])) {
+                    isLoginStudent = true;
+                    return sendACK(str);
+                }
+            } else {
+                if (database.LoginAdmin(str[1], str[2])) {
+                    isLoginAdmin = true;
+                    return sendACK(str);
+                }
             }
-        }
-        else{
-            if(database.LoginAdmin(str[1],str[2])) {
-                isLoginAdmin=true;
-                return sendACK(str);
-            }
-        }
-        return sendError(str);
+            return sendError(str);
+        }return sendError(str);
     }
 
     private byte[] Logout(String[] str) {
@@ -128,24 +130,18 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
     private byte[] sendACK(String[] str){
-        byte[] send=new byte[4];
-        short num=12;
-        send[0] = (byte)((num >> 8) & 0xFF);
-        send[1] = (byte)(num & 0xFF);
-        byte[] b=str[0].getBytes();
-        send= Arrays.copyOf(send, send.length+b.length);
-        for(int i=send.length-b.length;i<send.length;i++)
-            send[i+b.length]=b[i];
-        return send;
+        byte[] send=(String.valueOf(12)+" ").getBytes();
+        byte[] b=(str[0]+" ").getBytes();
+        return unionByte(send,b);
     }
     private byte[] sendACKCourseStat(String[] str,int numCourse,String courseName, int seatsMax, int seatsCurrent, LinkedList<String> list) {
-        byte[] send=sendACK_Short_String(str,numCourse,courseName);
-        byte[] curr=String.valueOf(seatsCurrent).getBytes();
-        byte[] max=String.valueOf(seatsMax).getBytes();
+        byte[] send=sendACK_Short_String(str,numCourse,courseName+'\0');
+        byte[] curr=(String.valueOf(seatsCurrent)+" ").getBytes();
+        byte[] max=(String.valueOf(seatsMax)+" ").getBytes();
         send=unionByte(send,curr);
         send=unionByte(send,max);
         for(String name: list){
-            byte[] nam=name.getBytes();
+            byte[] nam=(name+' ').getBytes();
             send=unionByte(send,nam);
         }
         return send;
@@ -155,7 +151,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] sendACKStringAndList(String[] str, String name, LinkedList<Integer> list) {
         byte[] send=sendACKOptionalString(str,name);
         for (Integer course: list){
-            byte[] cours=String.valueOf(course).getBytes();
+            byte[] cours=(String.valueOf(course)+" ").getBytes();
             send=unionByte(send,cours);
         }
         return send;
@@ -164,19 +160,19 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] sendACKOptionalList(String[] str, LinkedList<Integer> list) {
         byte[] send =sendACK(str);
         for (Integer course: list){
-            byte[] cours=String.valueOf(course).getBytes();
+            byte[] cours=(String.valueOf(course)+" ").getBytes();
             send=unionByte(send,cours);
         }
         return send;
     }
     private byte[] sendACKOptionalString(String[] str, String name) {
-        byte[] st=name.getBytes();
+        byte[] st=(name+" ").getBytes();
         byte[] send =sendACK(str);
         return unionByte(send,st);
     }
     private byte[] sendACK_Short_String(String[] str,int numCourse, String name) {
-        byte[] name1=name.getBytes();
-        byte[] num=String.valueOf(numCourse).getBytes();
+        byte[] name1=(name+" ").getBytes();
+        byte[] num=(String.valueOf(numCourse)+" ").getBytes();
         byte[] send =sendACK(str);
         send=unionByte(send,num);
         return unionByte(send,name1);
@@ -190,24 +186,22 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         return one;
     }
     private byte[] sendError(String[] str){
-        byte[] send=new byte[4];
-        short num=13;
-        send[0] = (byte)((num >> 8) & 0xFF);
-        send[1] = (byte)(num & 0xFF);
-        byte[] b=str[0].getBytes();
+        byte[] send=(String.valueOf(13)+" ").getBytes();
+        byte[] b=(str[0]+ " ").getBytes();
         return unionByte(send,b);
     }
 
     private String[] bytesToString(byte[] msg){
         int start=0;
         int index=0;
-        String[] str=new String[2];
+        String[] str=new String[3];
         for(int i=0;i<msg.length;i++){
             if(msg[i]==32) { // if it is find ' ' namespace
                 str[index]=new String(msg,start,i-start,StandardCharsets.UTF_8);
                 start=i+1;
                 index++;
             }
+            if(index==str.length) str=Arrays.copyOf(str,str.length+1);
             if(i==msg.length-1) str[index]=new String(msg,start,i+1-start,StandardCharsets.UTF_8);
         }
         return str;

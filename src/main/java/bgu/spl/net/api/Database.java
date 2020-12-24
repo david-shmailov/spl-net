@@ -23,9 +23,10 @@ public class Database {
     private HashMap<String, String> loginStudent;
     private HashMap<String, String> loginAdmin;
     private HashMap<Integer, String> CoursesName;
+    private HashMap<String, Integer> Coursesnum;
     private HashMap<Integer, LinkedList<Integer>> KdamCorosesList;
     private HashMap<Integer, Integer> NumOfMaxStudent;
-    private HashMap<String, LinkedList<Integer>> StatStudent;
+    private HashMap<String, LinkedList<String>> StatStudent;
     private HashMap<Integer, LinkedList<String>> StatCourse;
     private HashMap<String, Boolean> online;
 
@@ -34,6 +35,7 @@ public class Database {
         loginStudent = new HashMap<>();
         loginAdmin = new HashMap<>();
         CoursesName = new HashMap<>();
+        Coursesnum=new HashMap<>();
         KdamCorosesList = new HashMap<>();
         NumOfMaxStudent = new HashMap<>();
         StatStudent = new HashMap<>();
@@ -70,6 +72,7 @@ public class Database {
                             lastLineEnd = i;
                         } else if (numOfDownLine == 1) {
                             CoursesName.put(numOfCourse, line.substring(lastLineEnd+1, i));
+                            Coursesnum.put(line.substring(lastLineEnd+1, i),numOfCourse);
                             numOfDownLine++;
                             lastLineEnd = i;
                         } else if (numOfDownLine == 2) {
@@ -155,11 +158,11 @@ public class Database {
         LinkedList<Integer> kdam=KdamNeeded(numOfCourse);
         boolean AllKdam=true;
         for(Integer course: kdam){
-           if( !StatStudent.get(name).contains(course)) AllKdam=false;
+           if( !StatStudent.get(name).contains(CoursesName.get(course))) AllKdam=false;
         }
         if (StatCourse.get(numOfCourse).size() < NumOfMaxStudent.get(numOfCourse) && AllKdam) {
             StatCourse.get(numOfCourse).add(name);
-            StatStudent.get(name).add(numOfCourse);
+            StatStudent.get(name).add(CoursesName.get(numOfCourse));
             return true;
         } else return false;
     }
@@ -182,7 +185,14 @@ public class Database {
     /**
      * for STUDENTSTAT
      */
-    public synchronized LinkedList<Integer> StudentStat(String name) { return StatStudent.get(name); }
+    public synchronized LinkedList<Integer> StudentStat(String name) {
+        LinkedList<String> na=StatStudent.get(name);
+        LinkedList<Integer> send=new LinkedList<>();
+        for(String a:na){
+            send.add(Coursesnum.get(a));
+        }
+        return send;
+    }
 
     /**
      * for ISREGISTERED
@@ -198,7 +208,7 @@ public class Database {
     public synchronized boolean unregistered(int numOfCourse,String name){
         if(StatCourse.get(numOfCourse).contains(name)){
             StatCourse.get(numOfCourse).remove(name);
-            StatStudent.get(name).remove(numOfCourse);
+            StatStudent.get(name).remove(CoursesName.get(numOfCourse));
             return true;
         }
         return false;
@@ -208,6 +218,11 @@ public class Database {
      * for MYCOURSES
      */
     public synchronized LinkedList<Integer> myCourses(String name){
-        return StatStudent.get(name);
+        LinkedList<String> na=StatStudent.get(name);
+        LinkedList<Integer> send=new LinkedList<>();
+        for(String a:na){
+            send.add(Coursesnum.get(a));
+        }
+        return send;
     }
 }

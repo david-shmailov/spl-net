@@ -197,6 +197,7 @@ public class Database {
     /**
      * for ISREGISTERED
      */
+    public boolean IsCourseExist(int numOfCourse){return CourseByOrder.contains(numOfCourse);}
     public synchronized String isRegistered(int numOfCourse, String name) {
         if (StatCourse.get(numOfCourse).contains(name)) return "REGISTERED";
         return "NOT REGISTERED";

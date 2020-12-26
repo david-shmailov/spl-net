@@ -119,7 +119,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(str[1]==null){
         if(isLoginStudent){
             int courseNum=Integer.parseInt(str[1]);
-            return sendACKOptionalString(str,database.isRegistered(courseNum,UserName));
+            if(database.IsCourseExist(courseNum))return sendACKOptionalString(str,database.isRegistered(courseNum,UserName));
         }}
         return sendError(str);
     }

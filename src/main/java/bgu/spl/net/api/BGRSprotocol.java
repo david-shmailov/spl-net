@@ -21,7 +21,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         String str[]=bytesToString(msg);    ///covert the byte[] to string []
         int result =Integer.parseInt(str[0]);      ////convert the commend string to int
         if(result==1) return AdminReg(str);
-        if(result==2) return StudentRed(str);
+        if(result==2) return StudentReg(str);
         if(result==3) return Login(str);
         if(result==4) return Logout(str);
         if(result==5) return CourseReg(str);
@@ -35,14 +35,18 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
     private byte[] AdminReg(String[] str) {
+        if(str[2]!=null){
         UserName=str[1];
         if(database.AdminRegister(str[1],str[2])) return sendACK(str);
+        }
         return sendError(str);
     }
 
-    private byte[] StudentRed(String[] str) {
-        UserName=str[1];
-        if(database.studentRegister(str[1],str[2])) return sendACK(str);
+    private byte[] StudentReg(String[] str) {
+        if(str[2]!=null){
+            UserName = str[1];
+            if (database.studentRegister(str[1], str[2])) return sendACK(str);
+        }
         return sendError(str);
     }
 
@@ -65,66 +69,75 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
     private byte[] Logout(String[] str) {
+        if(str[1]==null){
         if(isLoginAdmin|| isLoginStudent){
             database.Logout(UserName);
             shouldTerminate=true;
             return sendACK(str);
-        }
+        }}
         return sendError(str);
     }
 
     private byte[] CourseReg(String[] str) {
-        int courseNum=Integer.parseInt(str[1]);
-        if(isLoginStudent && database.CourseRegister(courseNum,UserName))return sendACK(str);
+        if(str[2]==null) {
+            int courseNum = Integer.parseInt(str[1]);
+            if (isLoginStudent && database.CourseRegister(courseNum, UserName)) return sendACK(str);
+        }
         return sendError(str);
     }
 
     private byte[] KdamCheck(String[] str) {
+        if(str[2]==null){
         if(isLoginStudent) {
             int courseNum=Integer.parseInt(str[1]);
             if(database.KdamNeeded(courseNum)!=null)
             return sendACKOptionalList(str, database.KdamNeeded(courseNum)); //todo list of kdam need to be order
-        }
+        }}
         return sendError(str);
     }
 
     private byte[] CourseStat(String[] str) {
+        if(str[2]==null){
         if(isLoginAdmin){
             int courseNum=Integer.parseInt(str[1]);
             return sendACKCourseStat(str,courseNum,database.courseName(courseNum),database.SeatsMax(courseNum),
                     database.SeatsCurrent(courseNum),database.StudentsRegisterToCourse(courseNum));//todo list of student need to be order alphabetic
-        }
+        }}
         return sendError(str);
     }
 
     private byte[] StudentStat(String[] str) {
+        if(str[2]==null){
         if(isLoginAdmin){
             String name=str[1];
             return sendACKStringAndList(str,name,database.StudentStat(name));//todo list of Integer need to be order
-        }
+        }}
         return sendError(str);
     }
 
     private byte[] IsRegistered(String[] str) {
+        if(str[1]==null){
         if(isLoginStudent){
             int courseNum=Integer.parseInt(str[1]);
             return sendACKOptionalString(str,database.isRegistered(courseNum,UserName));
-        }
+        }}
         return sendError(str);
     }
 
     private byte[] UnRegister(String[] str) {
+        if(str[2]==null){
         if (isLoginStudent){
             int courseNum=Integer.parseInt(str[1]);
             if (database.unregistered(courseNum,UserName)) return sendACK(str);
-        }
+        }}
         return sendError(str);
     }
 
     private byte[] MyCourses(String[] str) {
+        if(str[1]==null){
         if(isLoginStudent){
             return sendACKOptionalList(str,database.myCourses(UserName));
-        }
+        }}
         return sendError(str);
     }
 
@@ -201,7 +214,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
                 index++;
             }
             if(index==str.length) str=Arrays.copyOf(str,str.length+1);
-            if(i==msg.length-1) str[index]=new String(msg,start,i+1-start,StandardCharsets.UTF_8);
+            if(i==msg.length-1 && msg[i]!=' ') str[index]=new String(msg,start,i+1-start,StandardCharsets.UTF_8);
         }
         return str;
     }

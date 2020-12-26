@@ -31,8 +31,6 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(result==9) return IsRegistered(str);
         if(result==10) return UnRegister(str);
         if(result==11) return MyCourses(str);
-    //    if(result==12) return ACK(msg); // todo check if it is needed to do
-    //    if(result==13) return ERROR(msg);
         else return sendError(str);
     }
 

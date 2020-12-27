@@ -201,9 +201,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         return one;
     }
     private byte[] sendError(short commend){
-        byte[] send=new byte[4];
-        byte[] b=shortToBytes((short) 13);
-        send=unionByte(send,b);
+        byte[] send=shortToBytes((short) 13);
         return unionByte(send,shortToBytes(commend));
     }
 

@@ -1,7 +1,7 @@
 package bgu.spl.net.api;
 
 
-import java.nio.ByteBuffer;
+
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -18,136 +18,139 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
 
     @Override
     public byte[] process(byte[] msg) {
-        String str[]=bytesToString(msg);    ///covert the byte[] to string []
-        int result =Integer.parseInt(str[0]);      ////convert the commend string to int
-        if(result==1) return AdminReg(str);
-        if(result==2) return StudentReg(str);
-        if(result==3) return Login(str);
-        if(result==4) return Logout(str);
-        if(result==5) return CourseReg(str);
-        if(result==6) return KdamCheck(str);
-        if(result==7) return CourseStat(str);
-        if(result==8) return StudentStat(str);
-        if(result==9) return IsRegistered(str);
-        if(result==10) return UnRegister(str);
-        if(result==11) return MyCourses(str);
-        else return sendError(str);
+
+        short result=bytesToShort(take2Bytes(msg,0)); ///covert the first 2 byte[] to short
+        if(result==1) return AdminReg(msg);
+        if(result==2) return StudentReg(msg);
+        if(result==3) return Login(msg);
+        if(result==4) return Logout(msg);
+        if(result==5) return CourseReg(msg);
+        if(result==6) return KdamCheck(msg);
+        if(result==7) return CourseStat(msg);
+        if(result==8) return StudentStat(msg);
+        if(result==9) return IsRegistered(msg);
+        if(result==15) return UnRegister(msg); ///// we cant send 10 because is is '\n' in asci
+        if(result==11) return MyCourses(msg);
+        else return sendError((short) 13);
     }
 
-    private byte[] AdminReg(String[] str) {
-        if(str[2]!=null){
-        UserName=str[1];
-        if(database.AdminRegister(str[1],str[2])) return sendACK(str);
+    private byte[] AdminReg(byte[] msg) {
+        String[] str=bytesToString(msg);
+        if(str[1]!=null){
+        UserName=str[0];
+        if(database.AdminRegister(str[0],str[1])) return sendACK((short) 1);
         }
-        return sendError(str);
+        return sendError((short) 1);
     }
 
-    private byte[] StudentReg(String[] str) {
-        if(str[2]!=null){
-            UserName = str[1];
-            if (database.studentRegister(str[1], str[2])) return sendACK(str);
+    private byte[] StudentReg(byte[] msg) {
+        String[] str=bytesToString(msg);
+        if(str[1]!=null){
+            UserName = str[0];
+            if (database.studentRegister(str[0], str[1])) return sendACK((short) 2);
         }
-        return sendError(str);
+        return sendError((short) 2);
     }
 
-    private byte[] Login(String[] str) {
-        UserName=str[1];
+    private byte[] Login(byte[] msg) {
+        String[] str=bytesToString(msg);
+        UserName=str[0];
         if (!isLoginAdmin && !isLoginStudent) {
-            if (database.isStudent(str[1])) {
-                if (database.LoginStudent(str[1], str[2])) {
+            if (database.isStudent(str[0])) {
+                if (database.LoginStudent(str[0], str[1])) {
                     isLoginStudent = true;
-                    return sendACK(str);
+                    return sendACK((short) 3);
                 }
             } else {
-                if (database.LoginAdmin(str[1], str[2])) {
+                if (database.LoginAdmin(str[0], str[1])) {
                     isLoginAdmin = true;
-                    return sendACK(str);
+                    return sendACK((short) 3);
                 }
             }
-            return sendError(str);
-        }return sendError(str);
+            return sendError((short) 3);
+        }return sendError((short) 3);
     }
 
-    private byte[] Logout(String[] str) {
-        if(str[1]==null){
+    private byte[] Logout(byte[] msg) {
+        if(msg.length==2){
         if(isLoginAdmin|| isLoginStudent){
             database.Logout(UserName);
             shouldTerminate=true;
-            return sendACK(str);
+            return sendACK((short) 4);
         }}
-        return sendError(str);
+        return sendError((short) 4);
     }
 
-    private byte[] CourseReg(String[] str) {
-        if(str[2]==null) {
-            int courseNum = Integer.parseInt(str[1]);
-            if (isLoginStudent && database.CourseRegister(courseNum, UserName)) return sendACK(str);
+    private byte[] CourseReg(byte[] msg) {
+        if(msg.length==4) {
+            short courseNum = bytesToShort(take2Bytes(msg, 2));
+            if (isLoginStudent && database.CourseRegister(courseNum, UserName)) return sendACK((short) 5);
         }
-        return sendError(str);
+        return sendError((short) 5);
     }
 
-    private byte[] KdamCheck(String[] str) {
-        if(str[2]==null){
+    private byte[] KdamCheck(byte[] msg) {
+        if(msg.length==4){
         if(isLoginStudent) {
-            int courseNum=Integer.parseInt(str[1]);
+            short courseNum= bytesToShort(take2Bytes(msg, 2));
             if(database.KdamNeeded(courseNum)!=null)
-            return sendACKOptionalList(str, database.KdamNeeded(courseNum)); //todo list of kdam need to be order
+            return sendACKOptionalList((short) 6, database.KdamNeeded(courseNum)); //todo list of kdam need to be order
         }}
-        return sendError(str);
+        return sendError((short) 6);
     }
 
-    private byte[] CourseStat(String[] str) {
-        if(str[2]==null){
+    private byte[] CourseStat(byte[] msg) {
+        if(msg.length==4){
         if(isLoginAdmin){
-            int courseNum=Integer.parseInt(str[1]);
-            return sendACKCourseStat(str,courseNum,database.courseName(courseNum),database.SeatsMax(courseNum),
+            short courseNum= bytesToShort(take2Bytes(msg, 2));
+            return sendACKCourseStat((short) 7,courseNum,database.courseName(courseNum),database.SeatsMax(courseNum),
                     database.SeatsCurrent(courseNum),database.StudentsRegisterToCourse(courseNum));//todo list of student need to be order alphabetic
         }}
-        return sendError(str);
+        return sendError((short) 7);
     }
 
-    private byte[] StudentStat(String[] str) {
+    private byte[] StudentStat(byte[] msg) {
+        String[] str=bytesToString(msg);
         if(str[2]==null){
         if(isLoginAdmin){
-            String name=str[1];
-            return sendACKStringAndList(str,name,database.StudentStat(name));//todo list of Integer need to be order
+            String name=str[0];
+            return sendACKStringAndList((short) 8,name,database.StudentStat(name));//todo list of Integer need to be order
         }}
-        return sendError(str);
+        return sendError((short) 8);
     }
 
-    private byte[] IsRegistered(String[] str) {
-        if(str[1]==null){
+    private byte[] IsRegistered(byte[] msg) {
+        if(msg.length==4){
         if(isLoginStudent){
-            int courseNum=Integer.parseInt(str[1]);
-            if(database.IsCourseExist(courseNum))return sendACKOptionalString(str,database.isRegistered(courseNum,UserName));
+            short courseNum= bytesToShort(take2Bytes(msg, 2));
+            if(database.IsCourseExist(courseNum))return sendACKOptionalString((short) 9,database.isRegistered(courseNum,UserName));
         }}
-        return sendError(str);
+        return sendError((short) 9);
     }
 
-    private byte[] UnRegister(String[] str) {
-        if(str[2]==null){
+    private byte[] UnRegister(byte[] msg) {
+        if(msg.length==4){
         if (isLoginStudent){
-            int courseNum=Integer.parseInt(str[1]);
-            if (database.unregistered(courseNum,UserName)) return sendACK(str);
+            short courseNum= bytesToShort(take2Bytes(msg, 2));
+            if (database.unregistered(courseNum,UserName)) return sendACK((short) 15);
         }}
-        return sendError(str);
+        return sendError((short) 15);
     }
 
-    private byte[] MyCourses(String[] str) {
-        if(str[1]==null){
+    private byte[] MyCourses(byte[] msg) {
+        if(msg.length==2){
         if(isLoginStudent){
-            return sendACKOptionalList(str,database.myCourses(UserName));
+            return sendACKOptionalList((short) 11,database.myCourses(UserName));
         }}
-        return sendError(str);
+        return sendError((short) 11);
     }
 
-    private byte[] sendACK(String[] str){
-        byte[] send=(String.valueOf(12)+" ").getBytes();
-        byte[] b=(str[0]+" ").getBytes();
-        return unionByte(send,b);
+    private byte[] sendACK(short commend){
+        byte[] send=shortToBytes((short) 12);
+        return unionByte(send,shortToBytes(commend));
     }
-    private byte[] sendACKCourseStat(String[] str,int numCourse,String courseName, int seatsMax, int seatsCurrent, LinkedList<String> list) {
-        byte[] send=sendACK_Short_String(str,numCourse,courseName+'\0');
+    private byte[] sendACKCourseStat(short commend,int numCourse,String courseName, int seatsMax, int seatsCurrent, LinkedList<String> list) {
+        byte[] send=sendACK_Short_String(commend,numCourse,courseName+' ');
         byte[] curr=(String.valueOf(seatsCurrent)+" ").getBytes();
         byte[] max=(String.valueOf(seatsMax)+" ").getBytes();
         send=unionByte(send,curr);
@@ -160,8 +163,8 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
 
-    private byte[] sendACKStringAndList(String[] str, String name, LinkedList<Integer> list) {
-        byte[] send=sendACKOptionalString(str,name);
+    private byte[] sendACKStringAndList(short commend, String name, LinkedList<Integer> list) {
+        byte[] send=sendACKOptionalString(commend,name);
         for (Integer course: list){
             byte[] cours=(String.valueOf(course)+" ").getBytes();
             send=unionByte(send,cours);
@@ -169,23 +172,23 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         return send;
     }
 
-    private byte[] sendACKOptionalList(String[] str, LinkedList<Integer> list) {
-        byte[] send =sendACK(str);
+    private byte[] sendACKOptionalList(short commend, LinkedList<Integer> list) {
+        byte[] send =sendACK(commend);
         for (Integer course: list){
             byte[] cours=(String.valueOf(course)+" ").getBytes();
             send=unionByte(send,cours);
         }
         return send;
     }
-    private byte[] sendACKOptionalString(String[] str, String name) {
+    private byte[] sendACKOptionalString(short commend, String name) {
         byte[] st=(name+" ").getBytes();
-        byte[] send =sendACK(str);
+        byte[] send =sendACK(commend);
         return unionByte(send,st);
     }
-    private byte[] sendACK_Short_String(String[] str,int numCourse, String name) {
+    private byte[] sendACK_Short_String(short commend,int numCourse, String name) {
         byte[] name1=(name+" ").getBytes();
         byte[] num=(String.valueOf(numCourse)+" ").getBytes();
-        byte[] send =sendACK(str);
+        byte[] send =sendACK(commend);
         send=unionByte(send,num);
         return unionByte(send,name1);
     }
@@ -197,18 +200,19 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         }
         return one;
     }
-    private byte[] sendError(String[] str){
-        byte[] send=(String.valueOf(13)+" ").getBytes();
-        byte[] b=(str[0]+ " ").getBytes();
-        return unionByte(send,b);
+    private byte[] sendError(short commend){
+        byte[] send=new byte[4];
+        byte[] b=shortToBytes((short) 13);
+        send=unionByte(send,b);
+        return unionByte(send,shortToBytes(commend));
     }
 
     private String[] bytesToString(byte[] msg){
-        int start=0;
+        int start=2;
         int index=0;
-        String[] str=new String[3];
-        for(int i=0;i<msg.length;i++){
-            if(msg[i]==32) { // if it is find ' ' namespace
+        String[] str=new String[2];
+        for(int i=2;i<msg.length;i++){
+            if(msg[i]=='\0') { // if it is find '\0' namespace
                 str[index]=new String(msg,start,i-start,StandardCharsets.UTF_8);
                 start=i+1;
                 index++;
@@ -219,6 +223,25 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         return str;
     }
 
+    public short bytesToShort(byte[] byteArr)
+    {
+        short result = (short)((byteArr[0] & 0xff) << 8);
+        result += (short)(byteArr[1] & 0xff);
+        return result;
+    }
+    public byte[] shortToBytes(short num)
+    {
+        byte[] bytesArr = new byte[2];
+        bytesArr[0] = (byte)((num >> 8) & 0xFF);
+        bytesArr[1] = (byte)(num & 0xFF);
+        return bytesArr;
+    }
+    public byte[] take2Bytes(byte[] msg,int i){
+        byte[] bytesArr = new byte[2];
+        bytesArr[0]=msg[0+i];
+        bytesArr[1]=msg[1+i];
+        return bytesArr;
+    }
 
     @Override
     public boolean shouldTerminate() {

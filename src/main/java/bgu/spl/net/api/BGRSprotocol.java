@@ -29,7 +29,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(result==7) return CourseStat(msg);
         if(result==8) return StudentStat(msg);
         if(result==9) return IsRegistered(msg);
-        if(result==15) return UnRegister(msg); ///// we cant send 10 because is is '\n' in asci
+        if(result==10) return UnRegister(msg);
         if(result==11) return MyCourses(msg);
         else return sendError((short) 13);
     }
@@ -111,7 +111,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
 
     private byte[] StudentStat(byte[] msg) {
         String[] str=bytesToString(msg);
-        if(str[2]==null){
+        if(str[1]==null){
         if(isLoginAdmin){
             String name=str[0];
             return sendACKStringAndList((short) 8,name,database.StudentStat(name));//todo list of Integer need to be order
@@ -132,9 +132,9 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(msg.length==4){
         if (isLoginStudent){
             short courseNum= bytesToShort(take2Bytes(msg, 2));
-            if (database.unregistered(courseNum,UserName)) return sendACK((short) 15);
+            if (database.unregistered(courseNum,UserName)) return sendACK((short) 10);
         }}
-        return sendError((short) 15);
+        return sendError((short) 10);
     }
 
     private byte[] MyCourses(byte[] msg) {
@@ -181,12 +181,12 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         return send;
     }
     private byte[] sendACKOptionalString(short commend, String name) {
-        byte[] st=(name+" ").getBytes();
+        byte[] st=(name+"\0").getBytes();
         byte[] send =sendACK(commend);
         return unionByte(send,st);
     }
     private byte[] sendACK_Short_String(short commend,int numCourse, String name) {
-        byte[] name1=(name+" ").getBytes();
+        byte[] name1=(name+"\0").getBytes();
         byte[] num=(String.valueOf(numCourse)+" ").getBytes();
         byte[] send =sendACK(commend);
         send=unionByte(send,num);

@@ -11,7 +11,7 @@ public class BGRSEncoderDecoder implements MessageEncoderDecoder<byte[]>{
     public byte[] decodeNextByte(byte nextByte) {
         //notice that the top 128 ascii characters have the same representation as their utf-8 counterparts
         //this allow us to do the following comparison
-        if (nextByte == '\n') {
+        if (nextByte == '/') {
             return popString();
         }
 
@@ -23,7 +23,7 @@ public class BGRSEncoderDecoder implements MessageEncoderDecoder<byte[]>{
     public byte[] encode(byte[] message) {
         byte[] send=new byte[message.length+1] ;
         for(int i=0; i<message.length;i++) {send[i]=message[i];}
-        send[message.length]='\n';
+        send[message.length]='/';
         return send;
     }
 

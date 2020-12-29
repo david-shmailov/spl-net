@@ -179,8 +179,8 @@ public class Database {
      */
     public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
     public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
-    public synchronized short SeatsCurrent(int numOfCourse) { return (short) StatCourse.get(numOfCourse).size(); }
-    public LinkedList<String> StudentsRegisterToCourse(int numOfCourse) { return StatCourse.get(numOfCourse); }
+    public synchronized short SeatsCurrent(short numOfCourse) { return (short) StatCourse.get(numOfCourse).size(); }
+    public LinkedList<String> StudentsRegisterToCourse(short numOfCourse) { return StatCourse.get(numOfCourse); }
 
     /**
      * for STUDENTSTAT
@@ -197,8 +197,8 @@ public class Database {
     /**
      * for ISREGISTERED
      */
-    public boolean IsCourseExist(int numOfCourse){return CourseByOrder.contains(numOfCourse);}
-    public synchronized String isRegistered(int numOfCourse, String name) {
+    public boolean IsCourseExist(short numOfCourse){return CourseByOrder.contains(numOfCourse);}
+    public synchronized String isRegistered(short numOfCourse, String name) {
         if (StatCourse.get(numOfCourse).contains(name)) return "REGISTERED";
         return "NOT REGISTERED";
     }
@@ -206,7 +206,7 @@ public class Database {
     /**
      * for UNREGISTER
      */
-    public synchronized boolean unregistered(int numOfCourse,String name){
+    public synchronized boolean unregistered(short numOfCourse,String name){
         if(StatCourse.get(numOfCourse).contains(name)){
             StatCourse.get(numOfCourse).remove(name);
             StatStudent.get(name).remove(CoursesName.get(numOfCourse));

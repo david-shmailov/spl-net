@@ -19,15 +19,15 @@ public class Database {
     private static class SingletonHolder {
         private static Database database = new Database();
     }
-    private LinkedList<Integer> CourseByOrder;
+    private LinkedList<Short> CourseByOrder;
     private HashMap<String, String> loginStudent;
     private HashMap<String, String> loginAdmin;
-    private HashMap<Integer, String> CoursesName;
-    private HashMap<String, Integer> Coursesnum;
-    private HashMap<Integer, LinkedList<Integer>> KdamCorosesList;
-    private HashMap<Integer, Integer> NumOfMaxStudent;
+    private HashMap<Short, String> CoursesName;
+    private HashMap<String, Short> Coursesnum;
+    private HashMap<Short, LinkedList<Short>> KdamCorosesList;
+    private HashMap<Short, Short> NumOfMaxStudent;
     private HashMap<String, LinkedList<String>> StatStudent;
-    private HashMap<Integer, LinkedList<String>> StatCourse;
+    private HashMap<Short, LinkedList<String>> StatCourse;
     private HashMap<String, Boolean> online;
 
     //to prevent user from creating new Database
@@ -61,12 +61,12 @@ public class Database {
             String line = reader.readLine();
             while (line != null) {
                 int numOfDownLine = 0;
-                int numOfCourse = 0;
+                short numOfCourse = 0;
                 int lastLineEnd = 0;
                 for (int i = 0; i < line.length(); i++) {
                     if (line.charAt(i) == '|') {
                         if (numOfDownLine == 0) {
-                            numOfCourse = Integer.parseInt(line.substring(0, i));
+                            numOfCourse = Short.parseShort(line.substring(0, i));
                             CourseByOrder.add(numOfCourse);
                             numOfDownLine++;
                             lastLineEnd = i;
@@ -76,18 +76,18 @@ public class Database {
                             numOfDownLine++;
                             lastLineEnd = i;
                         } else if (numOfDownLine == 2) {
-                            LinkedList<Integer> list = new LinkedList();
+                            LinkedList<Short> list = new LinkedList();
                             int start = lastLineEnd + 2;
                             if(line.charAt(start)!=']'){
                                 for (int j = lastLineEnd + 2; j < i; j++) {
                                     if (line.charAt(j) == ',') {
-                                        list.add(Integer.parseInt(line.substring(start, j)));
+                                        list.add(Short.parseShort(line.substring(start, j)));
                                         start = j + 1;
                                     } else if (line.charAt(j) == ']')
-                                        list.add(Integer.parseInt(line.substring(start, j)));
+                                        list.add(Short.parseShort(line.substring(start, j)));
                                 }}
                             KdamCorosesList.put(numOfCourse, list);
-                            NumOfMaxStudent.put(numOfCourse, Integer.parseInt(line.substring(i + 1)));
+                            NumOfMaxStudent.put(numOfCourse,  Short.parseShort(line.substring(i + 1)));
                             StatCourse.put(numOfCourse, new LinkedList<>());
                             break;
                         }
@@ -154,10 +154,10 @@ public class Database {
     /**
      * for COURSEREG
      */
-    public synchronized boolean CourseRegister(int numOfCourse, String name) {
-        LinkedList<Integer> kdam=KdamNeeded(numOfCourse);
+    public synchronized boolean CourseRegister(short numOfCourse, String name) {
+        LinkedList<Short> kdam=KdamNeeded(numOfCourse);
         boolean AllKdam=true;
-        for(Integer course: kdam){
+        for(Short course: kdam){
            if( !StatStudent.get(name).contains(CoursesName.get(course))) AllKdam=false;
         }
         if (StatCourse.get(numOfCourse).size() < NumOfMaxStudent.get(numOfCourse) && AllKdam) {
@@ -170,24 +170,24 @@ public class Database {
     /**
      * for KDAMCHECK
      */
-    public LinkedList<Integer> KdamNeeded(int numOfCourse) {
+    public LinkedList<Short> KdamNeeded(short numOfCourse) {
         return KdamCorosesList.get(numOfCourse);
     }
 
     /**
      * for COURSESTAT
      */
-    public String courseName(int numOfCourse){return CoursesName.get(numOfCourse); }
-    public int SeatsMax(int numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
-    public synchronized int SeatsCurrent(int numOfCourse) { return StatCourse.get(numOfCourse).size(); }
+    public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
+    public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
+    public synchronized short SeatsCurrent(int numOfCourse) { return (short) StatCourse.get(numOfCourse).size(); }
     public LinkedList<String> StudentsRegisterToCourse(int numOfCourse) { return StatCourse.get(numOfCourse); }
 
     /**
      * for STUDENTSTAT
      */
-    public synchronized LinkedList<Integer> StudentStat(String name) {
+    public synchronized LinkedList<Short> StudentStat(String name) {
         LinkedList<String> na=StatStudent.get(name);
-        LinkedList<Integer> send=new LinkedList<>();
+        LinkedList<Short> send=new LinkedList<>();
         for(String a:na){
             send.add(Coursesnum.get(a));
         }
@@ -218,9 +218,9 @@ public class Database {
     /**
      * for MYCOURSES
      */
-    public synchronized LinkedList<Integer> myCourses(String name){
+    public synchronized LinkedList<Short> myCourses(String name){
         LinkedList<String> na=StatStudent.get(name);
-        LinkedList<Integer> send=new LinkedList<>();
+        LinkedList<Short> send=new LinkedList<>();
         for(String a:na){
             send.add(Coursesnum.get(a));
         }

@@ -176,8 +176,11 @@ public class Database {
      * for COURSESTAT
      */
     public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
+
     public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
+
     public synchronized short SeatsCurrent(short numOfCourse) { return (short) StatCourse.get(numOfCourse).size(); }
+
     public Vector<String> StudentsRegisterToCourse(short numOfCourse) {
         StatCourse.get(numOfCourse).sort(Comparator.naturalOrder());
         return StatCourse.get(numOfCourse);
@@ -189,8 +192,9 @@ public class Database {
     public synchronized Vector<Short> StudentStat(String name) {
         Vector<String> na=StatStudent.get(name);
         Vector<Short> send=new Vector<>();
-        for(String a:na){
-            send.add(CoursesNum.get(a));
+        for(int i = 0; i<CourseByOrder.size();i++){
+            String course = CoursesName.get(CourseByOrder.get(i));
+            if(na.contains(course)) send.add(CourseByOrder.get(i));
         }
         return send;
     }

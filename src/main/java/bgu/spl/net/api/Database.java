@@ -4,6 +4,7 @@ package bgu.spl.net.api;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Vector;
 
@@ -105,7 +106,7 @@ public class Database {
      * for ADMINREG
      */
     public boolean AdminRegister(String name, String pass) {
-        if (loginAdmin.containsKey(name)) return false;
+        if (loginStudent.containsKey(name) || loginAdmin.containsKey(name)) return false;
         loginAdmin.put(name, pass);
         online.put(name, false);
         return true;
@@ -115,7 +116,7 @@ public class Database {
      * for STUDENTREG
      */
     public boolean studentRegister(String name, String pass) {
-        if (loginStudent.containsKey(name)) return false;
+        if (loginStudent.containsKey(name) || loginAdmin.containsKey(name)) return false;
         loginStudent.put(name, pass);
         online.put(name, false);
         StatStudent.put(name, new Vector<>());
@@ -177,7 +178,10 @@ public class Database {
     public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
     public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
     public synchronized short SeatsCurrent(short numOfCourse) { return (short) StatCourse.get(numOfCourse).size(); }
-    public Vector<String> StudentsRegisterToCourse(short numOfCourse) { return StatCourse.get(numOfCourse); }
+    public Vector<String> StudentsRegisterToCourse(short numOfCourse) {
+        StatCourse.get(numOfCourse).sort(Comparator.naturalOrder());
+        return StatCourse.get(numOfCourse);
+    }
 
     /**
      * for STUDENTSTAT

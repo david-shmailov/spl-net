@@ -13,7 +13,6 @@ public class BGRSSeverMain {
               () -> new BGRSprotocol(), //protocol factory
               BGRSEncoderDecoder::new //message encoder decoder factory
         ).serve();
-
     }
 }
 

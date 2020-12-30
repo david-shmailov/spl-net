@@ -5,7 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedList;
+import java.util.Vector;
 
 /**
  * Passive object representing the Database where all courses and users are stored.
@@ -19,15 +19,15 @@ public class Database {
     private static class SingletonHolder {
         private static Database database = new Database();
     }
-    private LinkedList<Short> CourseByOrder;
+    private Vector<Short> CourseByOrder;
     private HashMap<String, String> loginStudent;
     private HashMap<String, String> loginAdmin;
     private HashMap<Short, String> CoursesName;
-    private HashMap<String, Short> Coursesnum;
-    private HashMap<Short, LinkedList<Short>> KdamCorosesList;
+    private HashMap<String, Short> CoursesNum;
+    private HashMap<Short, Vector<Short>> KdamCoursesList;
     private HashMap<Short, Short> NumOfMaxStudent;
-    private HashMap<String, LinkedList<String>> StatStudent;
-    private HashMap<Short, LinkedList<String>> StatCourse;
+    private HashMap<String, Vector<String>> StatStudent;
+    private HashMap<Short, Vector<String>> StatCourse;
     private HashMap<String, Boolean> online;
 
     //to prevent user from creating new Database
@@ -35,12 +35,12 @@ public class Database {
         loginStudent = new HashMap<>();
         loginAdmin = new HashMap<>();
         CoursesName = new HashMap<>();
-        Coursesnum=new HashMap<>();
-        KdamCorosesList = new HashMap<>();
+        CoursesNum =new HashMap<>();
+        KdamCoursesList = new HashMap<>();
         NumOfMaxStudent = new HashMap<>();
         StatStudent = new HashMap<>();
         StatCourse = new HashMap<>();
-        CourseByOrder = new LinkedList<>();
+        CourseByOrder = new Vector<>();
         online = new HashMap<>();
         initialize("Courses.txt");
     }
@@ -72,11 +72,11 @@ public class Database {
                             lastLineEnd = i;
                         } else if (numOfDownLine == 1) {
                             CoursesName.put(numOfCourse, line.substring(lastLineEnd+1, i));
-                            Coursesnum.put(line.substring(lastLineEnd+1, i),numOfCourse);
+                            CoursesNum.put(line.substring(lastLineEnd+1, i),numOfCourse);
                             numOfDownLine++;
                             lastLineEnd = i;
                         } else if (numOfDownLine == 2) {
-                            LinkedList<Short> list = new LinkedList();
+                            Vector<Short> list = new Vector<>();
                             int start = lastLineEnd + 2;
                             if(line.charAt(start)!=']'){
                                 for (int j = lastLineEnd + 2; j < i; j++) {
@@ -86,18 +86,15 @@ public class Database {
                                     } else if (line.charAt(j) == ']')
                                         list.add(Short.parseShort(line.substring(start, j)));
                                 }}
-                            KdamCorosesList.put(numOfCourse, list);
+                            KdamCoursesList.put(numOfCourse, list);
                             NumOfMaxStudent.put(numOfCourse,  Short.parseShort(line.substring(i + 1)));
-                            StatCourse.put(numOfCourse, new LinkedList<>());
+                            StatCourse.put(numOfCourse, new Vector<>());
                             break;
                         }
-
                     }
-
                 }
                 line=reader.readLine();
             } return true;
-
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -121,7 +118,7 @@ public class Database {
         if (loginStudent.containsKey(name)) return false;
         loginStudent.put(name, pass);
         online.put(name, false);
-        StatStudent.put(name, new LinkedList<>());
+        StatStudent.put(name, new Vector<>());
         return true;
     }
 
@@ -155,7 +152,7 @@ public class Database {
      * for COURSEREG
      */
     public synchronized boolean CourseRegister(short numOfCourse, String name) {
-        LinkedList<Short> kdam=KdamNeeded(numOfCourse);
+        Vector<Short> kdam=KdamNeeded(numOfCourse);
         boolean AllKdam=true;
         for(Short course: kdam){
            if( !StatStudent.get(name).contains(CoursesName.get(course))) AllKdam=false;
@@ -170,8 +167,8 @@ public class Database {
     /**
      * for KDAMCHECK
      */
-    public LinkedList<Short> KdamNeeded(short numOfCourse) {
-        return KdamCorosesList.get(numOfCourse);
+    public Vector<Short> KdamNeeded(short numOfCourse) {
+        return KdamCoursesList.get(numOfCourse);
     }
 
     /**
@@ -180,16 +177,16 @@ public class Database {
     public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
     public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
     public synchronized short SeatsCurrent(short numOfCourse) { return (short) StatCourse.get(numOfCourse).size(); }
-    public LinkedList<String> StudentsRegisterToCourse(short numOfCourse) { return StatCourse.get(numOfCourse); }
+    public Vector<String> StudentsRegisterToCourse(short numOfCourse) { return StatCourse.get(numOfCourse); }
 
     /**
      * for STUDENTSTAT
      */
-    public synchronized LinkedList<Short> StudentStat(String name) {
-        LinkedList<String> na=StatStudent.get(name);
-        LinkedList<Short> send=new LinkedList<>();
+    public synchronized Vector<Short> StudentStat(String name) {
+        Vector<String> na=StatStudent.get(name);
+        Vector<Short> send=new Vector<>();
         for(String a:na){
-            send.add(Coursesnum.get(a));
+            send.add(CoursesNum.get(a));
         }
         return send;
     }
@@ -218,11 +215,11 @@ public class Database {
     /**
      * for MYCOURSES
      */
-    public synchronized LinkedList<Short> myCourses(String name){
-        LinkedList<String> na=StatStudent.get(name);
-        LinkedList<Short> send=new LinkedList<>();
+    public synchronized Vector<Short> myCourses(String name){
+        Vector<String> na=StatStudent.get(name);
+        Vector<Short> send=new Vector<>();
         for(String a:na){
-            send.add(Coursesnum.get(a));
+            send.add(CoursesNum.get(a));
         }
         return send;
     }

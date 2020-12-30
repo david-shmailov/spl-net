@@ -4,7 +4,7 @@ package bgu.spl.net.api;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.LinkedList;
+import java.util.Vector;
 
 
 public class BGRSprotocol implements MessagingProtocol<byte[]> {
@@ -94,7 +94,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(isLoginStudent|| isLoginAdmin) {
             short courseNum= bytesToShort(take2Bytes(msg, 2));
             if(database.KdamNeeded(courseNum)!=null)
-            return sendACKOptionalList((short) 6, database.KdamNeeded(courseNum)); //todo list of kdam need to be order
+            return sendACKOptionalList((short) 6, database.KdamNeeded(courseNum)); //TODO this should be ordered like in the file just need to test
         }}
         return sendError((short) 6);
     }
@@ -149,7 +149,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         byte[] send=shortToBytes((short) 12);
         return unionByte(send,shortToBytes(commend));
     }
-    private byte[] sendACKCourseStat(short commend,short numCourse,String courseName, short seatsMax, short seatsCurrent, LinkedList<String> list) {
+    private byte[] sendACKCourseStat(short commend,short numCourse,String courseName, short seatsMax, short seatsCurrent, Vector<String> list) {
         byte[] send=sendACK_Short_String(commend,numCourse,courseName+' ');
         byte[] curr=(String.valueOf(seatsCurrent)+' ').getBytes();
         byte[] max=(String.valueOf(seatsMax)+' ').getBytes();
@@ -163,7 +163,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
 
 
-    private byte[] sendACKStringAndList(short commend, String name, LinkedList<Short> list) {
+    private byte[] sendACKStringAndList(short commend, String name, Vector<Short> list) {
         byte[] send=sendACKOptionalString(commend,name);
         for (Short course: list){
             byte[] cours=(String.valueOf(course)+' ').getBytes();
@@ -172,7 +172,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         return send;
     }
 
-    private byte[] sendACKOptionalList(short commend, LinkedList<Short> list) {
+    private byte[] sendACKOptionalList(short commend, Vector<Short> list) {
         byte[] send =sendACK(commend);
         for (Short course: list){
             byte[] cours=(String.valueOf(course)+' ').getBytes();
@@ -236,7 +236,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     }
     public byte[] take2Bytes(byte[] msg,int i){
         byte[] bytesArr = new byte[2];
-        bytesArr[0]=msg[0+i];
+        bytesArr[0]=msg[i];
         bytesArr[1]=msg[1+i];
         return bytesArr;
     }

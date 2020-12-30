@@ -135,7 +135,7 @@ public class Database {
     }
     public boolean LoginAdmin(String name, String pass) {
         if (loginAdmin.get(name).equals(pass) && !online.get(name)) {
-            online.put(name, true);
+            online.replace(name, true);
             return true;
         }
         return false;
@@ -195,7 +195,7 @@ public class Database {
      * for ISREGISTERED
      */
     public boolean IsCourseExist(short numOfCourse){return CourseByOrder.contains(numOfCourse);}
-    public synchronized String isRegistered(short numOfCourse, String name) {
+    public String isRegistered(short numOfCourse, String name) {
         if (StatCourse.get(numOfCourse).contains(name)) return "REGISTERED";
         return "NOT REGISTERED";
     }

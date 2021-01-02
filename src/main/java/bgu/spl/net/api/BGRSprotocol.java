@@ -37,18 +37,20 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] AdminReg(byte[] msg) {
         String[] str=bytesToString(msg);
         if(str[1]!=null){
+            if(!isLoginAdmin&&!isLoginStudent){
         UserName=str[0];
         if(database.AdminRegister(str[0],str[1])) return sendACK((short) 1);
-        }
+        }}
         return sendError((short) 1);
     }
 
     private byte[] StudentReg(byte[] msg) {
         String[] str=bytesToString(msg);
         if(str[1]!=null){
+            if(!isLoginAdmin &&!isLoginStudent){
             UserName = str[0];
             if (database.studentRegister(str[0], str[1])) return sendACK((short) 2);
-        }
+        }}
         return sendError((short) 2);
     }
 

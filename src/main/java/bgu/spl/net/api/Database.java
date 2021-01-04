@@ -105,7 +105,7 @@ public class Database {
     /**
      * for ADMINREG
      */
-    public boolean AdminRegister(String name, String pass) {
+    public synchronized boolean AdminRegister(String name, String pass) {
         if (loginStudent.containsKey(name) || loginAdmin.containsKey(name)) return false;
         loginAdmin.put(name, pass);
         online.put(name, false);
@@ -115,7 +115,7 @@ public class Database {
     /**
      * for STUDENTREG
      */
-    public boolean studentRegister(String name, String pass) {
+    public synchronized boolean studentRegister(String name, String pass) {
         if (loginStudent.containsKey(name) || loginAdmin.containsKey(name)) return false;
         loginStudent.put(name, pass);
         online.put(name, false);
@@ -127,14 +127,14 @@ public class Database {
      * for LOGIN
      */
     public boolean isStudent(String name){return loginStudent.containsKey(name);}
-    public boolean LoginStudent(String name, String pass) {
+    public synchronized boolean LoginStudent(String name, String pass) {
         if (loginStudent.get(name).equals(pass) && !online.get(name)) {
             online.replace(name, true);
             return true;
         }
         return false;
     }
-    public boolean LoginAdmin(String name, String pass) {
+    public synchronized boolean LoginAdmin(String name, String pass) {
         if (loginAdmin.get(name).equals(pass) && !online.get(name)) {
             online.replace(name, true);
             return true;

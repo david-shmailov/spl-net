@@ -105,6 +105,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(msg.length==4){
         if(isLoginAdmin){
             short courseNum= bytesToShort(take2Bytes(msg, 2));
+            if (database.courseExist(courseNum))
             return sendACKCourseStat((short) 7,courseNum,database.courseName(courseNum),database.SeatsMax(courseNum),
                     database.SeatsCurrent(courseNum),database.StudentsRegisterToCourse(courseNum));
         }}
@@ -116,6 +117,8 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
         if(str[1]==null){
         if(isLoginAdmin){
             String name=str[0];
+            Vector<Short> ans=database.StudentStat(name);
+            if(ans!=null)
             return sendACKStringAndList((short) 8,name,database.StudentStat(name));
         }}
         return sendError((short) 8);

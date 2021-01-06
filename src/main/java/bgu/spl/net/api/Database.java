@@ -175,6 +175,7 @@ public class Database {
     /**
      * for COURSESTAT
      */
+    public boolean courseExist(short numOfCourse){return CoursesName.containsKey(numOfCourse); }
     public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
 
     public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
@@ -190,13 +191,16 @@ public class Database {
      * for STUDENTSTAT
      */
     public synchronized Vector<Short> StudentStat(String name) {
-        Vector<String> na=StatStudent.get(name);
-        Vector<Short> send=new Vector<>();
-        for(int i = 0; i<CourseByOrder.size();i++){
-            String course = CoursesName.get(CourseByOrder.get(i));
-            if(na.contains(course)) send.add(CourseByOrder.get(i));
+        if (StatStudent.containsKey(name)) {
+            Vector<String> na = StatStudent.get(name);
+            Vector<Short> send = new Vector<>();
+            for (int i = 0; i < CourseByOrder.size(); i++) {
+                String course = CoursesName.get(CourseByOrder.get(i));
+                if (na.contains(course)) send.add(CourseByOrder.get(i));
+            }
+            return send;
         }
-        return send;
+        return null;
     }
 
     /**

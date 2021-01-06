@@ -154,16 +154,17 @@ public class Database {
      */
     public synchronized boolean CourseRegister(short numOfCourse, String name) {
         if(CoursesName.containsKey(numOfCourse)){
-        Vector<Short> kdam=KdamNeeded(numOfCourse);
-        boolean AllKdam=true;
-        for(Short course: kdam){
-           if( !StatStudent.get(name).contains(CoursesName.get(course))) AllKdam=false;
-        }
-        if (StatCourse.get(numOfCourse).size() < NumOfMaxStudent.get(numOfCourse) && AllKdam) {
-            StatCourse.get(numOfCourse).add(name);
-            StatStudent.get(name).add(CoursesName.get(numOfCourse));
-            return true;
-        }}  return false;
+            Vector<Short> kdam=KdamNeeded(numOfCourse);
+            boolean AllKdam=true;
+            for(Short course: kdam){
+               if( !StatStudent.get(name).contains(CoursesName.get(course))) AllKdam=false;
+            }
+            if (StatCourse.get(numOfCourse).size() < NumOfMaxStudent.get(numOfCourse) && AllKdam) {
+                StatCourse.get(numOfCourse).add(name);
+                StatStudent.get(name).add(CoursesName.get(numOfCourse));
+                return true;
+            }
+        }  return false;
     }
 
     /**

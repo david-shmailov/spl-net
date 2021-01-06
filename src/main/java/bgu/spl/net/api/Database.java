@@ -31,7 +31,7 @@ public class Database {
     private HashMap<Short, Vector<String>> StatCourse;
     private HashMap<String, Boolean> online;
 
-    //to prevent user from creating new Database
+    //private to prevent user from creating new Database
     private Database() {
         loginStudent = new HashMap<>();
         loginAdmin = new HashMap<>();
@@ -153,7 +153,8 @@ public class Database {
      * for COURSEREG
      */
     public synchronized boolean CourseRegister(short numOfCourse, String name) {
-        if(CoursesName.containsKey(numOfCourse)){
+        //first check if the course exist and that the student isn't already registered to it
+        if(courseExist(numOfCourse) && !StatStudent.get(name).contains(CoursesName.get(numOfCourse))){
             Vector<Short> kdam=KdamNeeded(numOfCourse);
             boolean AllKdam=true;
             for(Short course: kdam){
@@ -178,6 +179,7 @@ public class Database {
      * for COURSESTAT
      */
     public boolean courseExist(short numOfCourse){return CoursesName.containsKey(numOfCourse); }
+
     public String courseName(short numOfCourse){return CoursesName.get(numOfCourse); }
 
     public short SeatsMax(short numOfCourse) { return NumOfMaxStudent.get(numOfCourse); }
@@ -218,10 +220,12 @@ public class Database {
      * for UNREGISTER
      */
     public synchronized boolean unregistered(short numOfCourse,String name){
-        if(StatCourse.get(numOfCourse).contains(name)){
-            StatCourse.get(numOfCourse).remove(name);
-            StatStudent.get(name).remove(CoursesName.get(numOfCourse));
-            return true;
+        if (courseExist(numOfCourse)){
+            if(StatCourse.get(numOfCourse).contains(name)){
+                StatCourse.get(numOfCourse).remove(name);
+                StatStudent.get(name).remove(CoursesName.get(numOfCourse));
+                return true;
+            }
         }
         return false;
     }

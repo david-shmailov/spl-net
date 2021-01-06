@@ -119,7 +119,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
             String name=str[0];
             Vector<Short> ans=database.StudentStat(name);
             if(ans!=null)
-            return sendACKStringAndList((short) 8,name,database.StudentStat(name));
+            return sendACKStringAndList((short) 8,name,ans);
         }}
         return sendError((short) 8);
     }

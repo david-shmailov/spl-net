@@ -86,7 +86,7 @@ public class BGRSprotocol implements MessagingProtocol<byte[]> {
     private byte[] CourseReg(byte[] msg) {
         if(msg.length==4) {
             short courseNum = bytesToShort(take2Bytes(msg, 2));
-            if (isLoginStudent && database.CourseRegister(courseNum, UserName)) return sendACK((short) 5);
+            if (isLoginStudent &&database.CourseRegister(courseNum, UserName)) return sendACK((short) 5);
         }
         return sendError((short) 5);
     }

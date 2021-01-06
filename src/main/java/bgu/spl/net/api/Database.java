@@ -153,6 +153,7 @@ public class Database {
      * for COURSEREG
      */
     public synchronized boolean CourseRegister(short numOfCourse, String name) {
+        if(CoursesName.containsKey(numOfCourse)){
         Vector<Short> kdam=KdamNeeded(numOfCourse);
         boolean AllKdam=true;
         for(Short course: kdam){
@@ -162,7 +163,7 @@ public class Database {
             StatCourse.get(numOfCourse).add(name);
             StatStudent.get(name).add(CoursesName.get(numOfCourse));
             return true;
-        } else return false;
+        }}  return false;
     }
 
     /**

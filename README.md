@@ -1,4 +1,4 @@
-# spl-net implementing (the sever)
+# spl-net implementing (the server)
 
 for the client please check Client repository 
 
